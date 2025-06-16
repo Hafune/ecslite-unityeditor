@@ -17,8 +17,14 @@ namespace Leopotam.EcsLite.UnityEditor {
 
         static object[] _componentsCache = new object[32];
 
+        string _componentNameFilter = "";
+
         public override void OnInspectorGUI () {
             var observer = (EcsEntityDebugView) target;
+
+            EditorGUILayout.LabelField("Filter", EditorStyles.boldLabel);
+            _componentNameFilter = EditorGUILayout.TextField(_componentNameFilter);
+
             if (observer.World != null) {
                 DrawComponents (observer);
                 EditorUtility.SetDirty (target);
@@ -31,9 +37,17 @@ namespace Leopotam.EcsLite.UnityEditor {
                 for (var i = 0; i < count; i++) {
                     var component = _componentsCache[i];
                     _componentsCache[i] = null;
-                    var type = component.GetType ();
+                    var type = component.GetType();
+                    var typeName = EditorExtensions.GetCleanGenericTypeName(type);
+
+                    // Применяем фильтр
+                    if (!string.IsNullOrEmpty(_componentNameFilter) &&
+                        !typeName.Contains(_componentNameFilter, StringComparison.OrdinalIgnoreCase)) {
+                        continue;
+                    }
+
                     GUILayout.BeginVertical (GUI.skin.box);
-                    var typeName = EditorExtensions.GetCleanGenericTypeName (type);
+
                     var pool = debugView.World.GetPoolByType (type);
                     var (rendered, changed, newValue) = EcsComponentInspectors.Render (typeName, type, component, debugView);
                     if (!rendered) {
