@@ -136,13 +136,13 @@ namespace Leopotam.EcsLite.UnityEditor.Templates {
         static void CreateAndRenameAsset (string fileName, Texture2D icon, Action<string> onSuccess) {
             var action = CreateInstance<CustomEndNameAction> ();
             action.Callback = onSuccess;
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists (0, action, fileName, icon, null);
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists (default (EntityId), action, fileName, icon, null);
         }
 
-        sealed class CustomEndNameAction : EndNameEditAction {
+        sealed class CustomEndNameAction : AssetCreationEndAction {
             [NonSerialized] public Action<string> Callback;
 
-            public override void Action (int instanceId, string pathName, string resourceFile) {
+            public override void Action (EntityId entityId, string pathName, string resourceFile) {
                 Callback?.Invoke (pathName);
             }
         }
